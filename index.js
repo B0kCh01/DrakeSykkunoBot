@@ -9,16 +9,27 @@ const client = new Discord.Client();
 
 let songs = [
     "Summer Sixteen",
+    "$help",
     "Make Me Proud",
+    "$help",
     "Too Much",
+    "$help",
     "All Me",
+    "$help",
     "One Dance",
+    "$help",
     "Know Yourself",
+    "$help",
     "Lord Knows",
+    "$help",
     "Back To Back",
+    "$help",
     "0-100",
+    "$help",
     "Marvin's Room",
-    "Hotline Bling"
+    "$help",
+    "Hotline Bling",
+    "$help"
 ];
 
 let captions = [
