@@ -1,4 +1,4 @@
-gifs/output*
+./gifs/output*
 log.txt
 
 # Logs
