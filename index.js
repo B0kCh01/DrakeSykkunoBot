@@ -293,11 +293,7 @@ function sendMeme(msg, repeatOnError, customMessage) {
                                 console.log("error");
                                 errorMsg(msg, error);
                                 if (repeatOnError) {
-                                    msg.reply("Let me try again...").catch(
-                                        (error) => {
-                                            dmPermError();
-                                        }
-                                    );
+                                    msg.reply("Let me try again...").catch();
                                     sendMeme(msg, false, customMessage);
                                 }
                             });
@@ -316,7 +312,7 @@ function errorMsg(msg, error) {
     msg.reply(
         `They **prayed** for my downfall: \n\`\`\`json\n${error}\`\`\``
     ).catch((error) => {
-        dmPermError();
+        dmPermError(msg);
     });
 }
 
@@ -333,8 +329,8 @@ function randVal(list) {
     return list[Math.floor(Math.random() * list.length)];
 }
 
-function dmPermError() {
-    client.users.fetch("293903980935774208", false).then((user) => {
+function dmPermError(msg) {
+    client.users.fetch(msg.author.id, false).then((user) => {
         user.send(
             "I don't think I had the proper permissions (react, send, attach) in that channel :("
         ).catch();
