@@ -173,7 +173,12 @@ client.on("ready", () => {
 var errors = [];
 process.on("unhandledRejection", (error) => {
     let errorMSG = `[${getTimestamp()}] Failed: ` + error.message;
-    errors.push(errorMSG.replace("Missing Access", "I don't have enough permissions in that channel."));
+    errors.push(
+        errorMSG.replace(
+            "Missing Access",
+            "I don't have enough permissions in that channel."
+        )
+    );
 
     console.error(`[${getTimestamp()}]`, error);
 });
@@ -207,6 +212,14 @@ client.on("message", (msg) => {
             sendMeme(msg, true, {
                 custom: message,
             });
+        } else if (main === "wall") {
+            /*
+                WALL COMMAND
+            */
+            let message = args[0] || "";
+            sendWall(msg, true, {
+                custom: message,
+            });
         } else if (main === "help") {
             /*
                 HELP COMMAND
@@ -219,7 +232,8 @@ client.on("message", (msg) => {
                 "```I generate drake-sykkuno memes for you```\n" +
                 '`$meme` or include "sykkuno" in your message >> Generates a meme for you\n' +
                 "`$meme Some Name` >> Uses the name or phrase in the caption\n" +
-                "`$custom Some Caption` >> Creates a drake gif with a random caption (don't make it too long)\n" +
+                "`$custom Some Caption` >> Creates a drake gif with a caption (don't make it too long)\n" +
+                "`$wall Some Caption` >> Creates a donowall gif with a caption (don't make it too long)\n" +
                 "`$broke` >> Find out why the bot is not working anymore. No response? LMK.\n" +
                 "`$help` >> Bot commands list\n" +
                 "_______\n" +
@@ -228,9 +242,16 @@ client.on("message", (msg) => {
         } else if (main === "broke") {
             client.users.fetch(msg.author.id, false).then((user) => {
                 let cached = errors.reverse();
-                let message = (cached[0] || "---") + "\n" + (cached[1] || "---") + "\n" + (cached[2] || "---");
+                let message =
+                    (cached[0] || "---") +
+                    "\n" +
+                    (cached[1] || "---") +
+                    "\n" +
+                    (cached[2] || "---");
 
-                user.send("**What went wrong (last three errors):**\n" + message);
+                user.send(
+                    "**What went wrong (last three errors):**\n" + message
+                );
             });
         }
     } else {
@@ -304,6 +325,41 @@ function sendMeme(msg, repeatOnError, customMessage) {
         })
         .catch((error) => {
             errorMsg(msg, error);
+        });
+}
+
+function sendWall(msg, repeatOnError, customMessage) {
+    let caption = randVal(captions);
+    if (customMessage && customMessage.custom) {
+        caption = customMessage.custom;
+    }
+
+    console.log(`[${getTimestamp()}] Wall GIF with ${caption}`);
+
+    msg.react("🧱");
+
+    gm("./gifs/donowall.gif")
+        .stroke("#000000")
+        .fill("#ffffff")
+        .font("./impact.ttf", 30)
+        .dither(false)
+        .drawText(0, 40, caption, "South")
+        .noProfile()
+        .bitdepth(8)
+        .write("./gifs/output-wall.gif", function (error) {
+            if (!error) {
+                msg.channel
+                    .send("", { files: ["./gifs/output-wall.gif"] })
+                    .catch((error) => {
+                        errorMsg(msg, error);
+                        if (repeatOnError) {
+                            msg.reply("Let me try again...").catch();
+                            sendWall(msg, false, customMessage);
+                        }
+                    });
+            } else {
+                errorMsg(msg, error);
+            }
         });
 }
 
