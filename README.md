@@ -16,4 +16,5 @@
 3. Run `index.js`
 
 ## Usage
-- Just include <kbd>sykkuno</kbd> or <kbd>sykunno</kbd> in your discord message
+- Include <kbd>sykkuno</kbd> or <kbd>sykunno</kbd> in your discord message
+- `$help` to see all the other cool features of this bot! (or read code)
