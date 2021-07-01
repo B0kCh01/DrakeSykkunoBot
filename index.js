@@ -160,10 +160,14 @@ client.on("ready", () => {
     console.log(`Bot loaded as ${client.user.tag}!`);
     console.log("===============================\n");
 
+    let i = 0;
+
     setInterval(function () {
-        client.user.setActivity(randVal(songs), {
+        client.user.setActivity(songs[i % songs.length], {
             type: "LISTENING"
         });
+
+        i++;
     }, 10000);
 });
 
