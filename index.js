@@ -1,7 +1,10 @@
+// index.js by b0kch01
+
 const Discord = require("discord.js");
 const fetch = require("node-fetch");
-var request = require("request");
-var gm = require("gm");
+const request = require("request");
+const fs = require("fs");
+const gm = require("gm");
 
 let settings = { method: "Get" };
 
@@ -161,7 +164,7 @@ client.on("ready", () => {
 
     let i = 0;
 
-    setInterval(function () {
+    setInterval(function() {
         client.user.setActivity(songs[i % songs.length], {
             type: "LISTENING",
         });
@@ -170,6 +173,7 @@ client.on("ready", () => {
     }, 10000);
 });
 
+// Error Handler
 var errors = [];
 process.on("unhandledRejection", (error) => {
     let errorMSG = `[${getTimestamp()}] Failed: ` + error.message;
@@ -179,7 +183,6 @@ process.on("unhandledRejection", (error) => {
             "I don't have enough permissions in that channel."
         )
     );
-
     console.error(`[${getTimestamp()}]`, error);
 });
 
@@ -192,53 +195,29 @@ client.on("message", (msg) => {
 
         let main = args.shift();
         args = [args.join(" ")];
-        /*
-            MEME COMMAND
-        */
 
         if (main === "meme") {
+            /* MEME COMMAND */
             if (args[0]) {
-                sendMeme(msg, true, {
-                    name: args[0],
-                });
+                sendDrakeMeme(msg, true, { name: args[0] });
             } else {
-                sendMeme(msg, true);
+                sendDrakeMeme(msg, true);
             }
         } else if (main === "custom") {
-            /*
-                CUSTOM COMMAND
-            */
+            /* CUSTOM COMMAND */
             let message = args[0] || "";
-            sendMeme(msg, true, {
-                custom: message,
-            });
+            sendDrakeMeme(msg, true, { custom: message });
         } else if (main === "wall") {
-            /*
-                WALL COMMAND
-            */
+            /* WALL COMMAND */
             let message = args[0] || "";
-            sendWall(msg, true, {
-                custom: message,
-            });
+            sendGIF(msg, true, "donowall.gif", "🧱", { custom: message });
+        } else if (main === "bday") {
+            /* B-DAY COMMAND */
+            let message = args[0] || "";
+            sendGIF(msg, true, "mario.gif", "🎂", { custom: message });
         } else if (main === "help") {
-            /*
-                HELP COMMAND
-            */
-            msg.react("👍");
-
-            /*jshint multistr: true */
-            let message =
-                "** DRAKE x SYKKUNO BOT**" +
-                "```I generate drake-sykkuno memes for you```\n" +
-                '`$meme` or include "sykkuno" in your message >> Generates a meme for you\n' +
-                "`$meme Some Name` >> Uses the name or phrase in the caption\n" +
-                "`$custom Some Caption` >> Creates a drake gif with a caption (don't make it too long)\n" +
-                "`$wall Some Caption` >> Creates a donowall gif with a caption (don't make it too long)\n" +
-                "`$broke` >> Find out why the bot is not working anymore. No response? LMK.\n" +
-                "`$help` >> Bot commands list\n" +
-                "_______\n" +
-                "Built with ♥ by @b0kch01   --   Idea by Henry";
-            msg.channel.send(message);
+            /* HELP COMMAND */
+            sendHelp(msg);
         } else if (main === "broke") {
             client.users.fetch(msg.author.id, false).then((user) => {
                 let cached = errors.reverse();
@@ -249,9 +228,7 @@ client.on("message", (msg) => {
                     "\n" +
                     (cached[2] || "---");
 
-                user.send(
-                    "**What went wrong (last three errors):**\n" + message
-                );
+                user.send("**What went wrong (last three errors):**\n" + message);
             });
         }
     } else {
@@ -259,16 +236,24 @@ client.on("message", (msg) => {
             msg.content.toLowerCase().includes("sykkuno") ||
             msg.content.toLowerCase().includes("sykunno")
         ) {
-            sendMeme(msg, true);
+            sendDrakeMeme(msg, true);
+        }
+
+        if (
+            msg.content.toLowerCase().includes("birthday")
+        ) {
+            sendGIF(msg, true, "mario.gif", "🎂", { custom: msg.content });
         }
     }
 });
 
-function sendMeme(msg, repeatOnError, customMessage) {
+
+// Sends a random drake meme with customization options
+function sendDrakeMeme(msg, repeatOnError, customMessage) {
     msg.react("♥");
 
     const pos = Math.floor(Math.random() * 20);
-    let caption = randVal(captions);
+    let caption = sample(captions);
 
     if (customMessage) {
         if (customMessage.custom) {
@@ -279,24 +264,25 @@ function sendMeme(msg, repeatOnError, customMessage) {
     }
 
     fetch(
-        `https://g.tenor.com/v1/search?q=drake&key=JURBTZ9GDIWX&limit=50&media_filter=minimal&pos=${pos}`,
-        settings
-    )
+            `https://g.tenor.com/v1/search?q=drake&key=JURBTZ9GDIWX&limit=50&media_filter=minimal&pos=${pos}`,
+            settings
+        )
         .then((data) => data.json())
         .then((output) => {
             let gifs = output.results;
             console.log(
-                `[${getTimestamp()}] Searched for position ${pos} and got ${
-                    gifs.length
+                `[${getTimestamp()}] Searched for position ${pos} and got ${gifs.length
                 } results`
             );
 
-            let drake = randVal(gifs);
+            let drake = sample(gifs);
             while (drake.media[0].gif.size > 8000000) {
-                drake = randVal(gifs);
+                drake = sample(gifs);
             }
 
             let url = drake.media[0].gif.url;
+
+            const OUTPUT_PATH = "./gifs/output-" + Math.random().toString(36).substring(7) + "-drake.gif";
 
             gm(request(url))
                 .stroke("#000000")
@@ -306,20 +292,23 @@ function sendMeme(msg, repeatOnError, customMessage) {
                 .drawText(0, 40, caption, "South")
                 .noProfile()
                 .bitdepth(8)
-                .write("./gifs/output.gif", function (error) {
+                .write(OUTPUT_PATH, function(error) {
                     if (!error) {
                         msg.channel
-                            .send("", { files: ["./gifs/output.gif"] })
+                            .send("", { files: [OUTPUT_PATH] })
+                            .then(() => { fs.unlink(OUTPUT_PATH, () => {}); })
                             .catch((error) => {
-                                console.log("error");
                                 errorMsg(msg, error);
                                 if (repeatOnError) {
                                     msg.reply("Let me try again...").catch();
-                                    sendMeme(msg, false, customMessage);
+                                    sendDrakeMeme(msg, false, customMessage);
+                                } else {
+                                    fs.unlink(OUTPUT_PATH, () => {});
                                 }
                             });
                     } else {
                         errorMsg(msg, error);
+                        fs.unlink(OUTPUT_PATH, () => {});
                     }
                 });
         })
@@ -328,17 +317,20 @@ function sendMeme(msg, repeatOnError, customMessage) {
         });
 }
 
-function sendWall(msg, repeatOnError, customMessage) {
-    let caption = randVal(captions);
+// Sends GIF with customization options
+function sendGIF(msg, repeatOnError, bg, emoji, customMessage) {
+    let caption = sample(captions);
     if (customMessage && customMessage.custom) {
         caption = customMessage.custom;
     }
 
-    console.log(`[${getTimestamp()}] Wall GIF with ${caption}`);
+    console.log(`[${getTimestamp()}] ${bg} with ${caption}`);
 
-    msg.react("🧱");
+    msg.react(emoji);
 
-    gm("./gifs/donowall.gif")
+    const OUTPUT_PATH = "./gifs/output-" + Math.random().toString(36).substring(7) + ".gif";
+
+    gm("./gifs/templates/" + bg)
         .stroke("#000000")
         .fill("#ffffff")
         .font("./impact.ttf", 30)
@@ -346,23 +338,50 @@ function sendWall(msg, repeatOnError, customMessage) {
         .drawText(0, 40, caption, "South")
         .noProfile()
         .bitdepth(8)
-        .write("./gifs/output-wall.gif", function (error) {
+        .write(OUTPUT_PATH, function(error) {
             if (!error) {
                 msg.channel
-                    .send("", { files: ["./gifs/output-wall.gif"] })
+                    .send("", { files: [OUTPUT_PATH] })
+                    .then(() => { fs.unlink(OUTPUT_PATH, () => {}); })
                     .catch((error) => {
                         errorMsg(msg, error);
                         if (repeatOnError) {
                             msg.reply("Let me try again...").catch();
-                            sendWall(msg, false, customMessage);
+                            sendGIF(msg, false, bg, emoji, customMessage);
+                        } else {
+                            fs.unlink(OUTPUT_PATH, () => {});
                         }
                     });
             } else {
                 errorMsg(msg, error);
+                fs.unlink(OUTPUT_PATH, () => {});
             }
         });
+
 }
 
+// Sends help message
+function sendHelp(msg) {
+    msg.react("👍");
+
+    /*jshint multistr: true */
+    let message =
+        "** DRAKE x SYKKUNO BOT**" +
+        "```I generate drake-sykkuno memes for you```\n" +
+        '`$meme` or include "sykkuno" in your message >> Generates a meme for you\n' +
+        "`$meme Some Name` >> Uses the name or phrase in the caption\n" +
+        "`$custom Some Caption` >> Creates a drake gif with a caption\n" +
+        "`$wall Some Caption` >> Creates a donowall gif with a caption\n" +
+        "`$bday Some Caption` >> Creates a mario (birthday) gif with a caption\n" +
+        "`$broke` >> Find out why the bot is not working anymore. No response? LMK.\n" +
+        "`$help` >> Bot commands list\n" +
+        "_______\n" +
+        "Built with ♥ by @b0kch01   --   Idea by Henry";
+
+    msg.channel.send(message);
+}
+
+// Tries to send error feedback
 function errorMsg(msg, error) {
     msg.react("❌").catch();
     msg.reply(
@@ -372,6 +391,7 @@ function errorMsg(msg, error) {
     });
 }
 
+// Grabs current date and time
 function getTimestamp() {
     const now = new Date();
     const date =
@@ -381,10 +401,12 @@ function getTimestamp() {
     return date + " " + time;
 }
 
-function randVal(list) {
+// Grabs random value from a list
+function sample(list) {
     return list[Math.floor(Math.random() * list.length)];
 }
 
+// Direct Messages a warning for lack of permissions
 function dmPermError(msg) {
     client.users.fetch(msg.author.id, false).then((user) => {
         user.send(
@@ -393,6 +415,7 @@ function dmPermError(msg) {
     });
 }
 
+// Load token for login
 const dotenv = require("dotenv");
 dotenv.config();
 client.login(process.env.TOKEN);
