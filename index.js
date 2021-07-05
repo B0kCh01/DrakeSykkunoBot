@@ -369,10 +369,10 @@ function sendHelp(msg) {
         "** DRAKE x SYKKUNO BOT**" +
         "```I generate drake-sykkuno memes for you```\n" +
         '`$meme` or include "sykkuno" in your message >> Generates a meme for you\n' +
-        "`$meme \\_\\_` >> Uses the name or phrase in the caption\n" +
-        "`$custom \\_\\_` >> Drake gif with a caption\n" +
-        "`$wall \\_\\_` >> Donowall gif with a caption\n" +
-        "`$bday \\_\\_` or include \"birthday\" >> Mario (birthday) gif with a caption\n" +
+        "`$meme __` >> Uses the name or phrase in the caption\n" +
+        "`$custom __` >> Drake gif with a caption\n" +
+        "`$wall __` >> Donowall gif with a caption\n" +
+        "`$bday __` or include \"birthday\" >> Mario (birthday) gif with a caption\n" +
         "`$broke` >> Find out why the bot is not working anymore. No response? LMK.\n" +
         "`$help` >> Bot commands list\n" +
         "_______\n" +
