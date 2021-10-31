@@ -216,8 +216,11 @@ client.on("message", (msg) => {
             let message = args[0] || "";
             sendGIF(msg, true, "mario.gif", "🎂", { custom: message });
         } else if (main === "clap") {
+            /* CLAP COMMAND */
             let message = args[0] || "";
-            sendGIF(msg, true, "lowresclap.gif", "👏", { custom: message });
+
+            let gif = sample(["clean.gif", "dirty.gif"]);
+            sendGIF(msg, true, "clap_" + gif, "👏", { custom: message });
         } else if (main === "help") {
             /* HELP COMMAND */
             sendHelp(msg);
