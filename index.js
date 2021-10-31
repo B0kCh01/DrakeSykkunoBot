@@ -164,7 +164,7 @@ client.on("ready", () => {
 
     let i = 0;
 
-    setInterval(function() {
+    setInterval(function () {
         client.user.setActivity(songs[i % songs.length], {
             type: "LISTENING",
         });
@@ -215,6 +215,9 @@ client.on("message", (msg) => {
             /* B-DAY COMMAND */
             let message = args[0] || "";
             sendGIF(msg, true, "mario.gif", "🎂", { custom: message });
+        } else if (main === "clap") {
+            let message = args[0] || "";
+            sendGIF(msg, true, "lowresclap.gif", "👏", { custom: message });
         } else if (main === "help") {
             /* HELP COMMAND */
             sendHelp(msg);
@@ -264,9 +267,9 @@ function sendDrakeMeme(msg, repeatOnError, customMessage) {
     }
 
     fetch(
-            `https://g.tenor.com/v1/search?q=drake&key=JURBTZ9GDIWX&limit=50&media_filter=minimal&pos=${pos}`,
-            settings
-        )
+        `https://g.tenor.com/v1/search?q=drake&key=JURBTZ9GDIWX&limit=50&media_filter=minimal&pos=${pos}`,
+        settings
+    )
         .then((data) => data.json())
         .then((output) => {
             let gifs = output.results;
@@ -292,23 +295,23 @@ function sendDrakeMeme(msg, repeatOnError, customMessage) {
                 .drawText(0, 40, caption, "South")
                 .noProfile()
                 .bitdepth(8)
-                .write(OUTPUT_PATH, function(error) {
+                .write(OUTPUT_PATH, function (error) {
                     if (!error) {
                         msg.channel
                             .send("", { files: [OUTPUT_PATH] })
-                            .then(() => { fs.unlink(OUTPUT_PATH, () => {}); })
+                            .then(() => { fs.unlink(OUTPUT_PATH, () => { }); })
                             .catch((error) => {
                                 errorMsg(msg, error);
                                 if (repeatOnError) {
                                     msg.reply("Let me try again...").catch();
                                     sendDrakeMeme(msg, false, customMessage);
                                 } else {
-                                    fs.unlink(OUTPUT_PATH, () => {});
+                                    fs.unlink(OUTPUT_PATH, () => { });
                                 }
                             });
                     } else {
                         errorMsg(msg, error);
-                        fs.unlink(OUTPUT_PATH, () => {});
+                        fs.unlink(OUTPUT_PATH, () => { });
                     }
                 });
         })
@@ -338,23 +341,23 @@ function sendGIF(msg, repeatOnError, bg, emoji, customMessage) {
         .drawText(0, 40, caption, "South")
         .noProfile()
         .bitdepth(8)
-        .write(OUTPUT_PATH, function(error) {
+        .write(OUTPUT_PATH, function (error) {
             if (!error) {
                 msg.channel
                     .send("", { files: [OUTPUT_PATH] })
-                    .then(() => { fs.unlink(OUTPUT_PATH, () => {}); })
+                    .then(() => { fs.unlink(OUTPUT_PATH, () => { }); })
                     .catch((error) => {
                         errorMsg(msg, error);
                         if (repeatOnError) {
                             msg.reply("Let me try again...").catch();
                             sendGIF(msg, false, bg, emoji, customMessage);
                         } else {
-                            fs.unlink(OUTPUT_PATH, () => {});
+                            fs.unlink(OUTPUT_PATH, () => { });
                         }
                     });
             } else {
                 errorMsg(msg, error);
-                fs.unlink(OUTPUT_PATH, () => {});
+                fs.unlink(OUTPUT_PATH, () => { });
             }
         });
 
@@ -373,6 +376,7 @@ function sendHelp(msg) {
         "`$custom __` >> Drake gif with a caption\n" +
         "`$wall __` >> Donowall gif with a caption\n" +
         "`$bday __` or include \"birthday\" >> Mario (birthday) gif with a caption\n" +
+        "`$clap __` creates a random quality clap drake gif\n" +
         "`$broke` >> Find out why the bot is not working anymore. No response? LMK.\n" +
         "`$help` >> Bot commands list\n" +
         "_______\n" +
