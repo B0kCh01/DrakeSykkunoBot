@@ -174,9 +174,8 @@ client.on("ready", () => {
     
     setInterval(function () {
         const date = new Date();
-        //if (date.getMinutes() === 46 && (date.getHours() === 1 || date.getHours() === 13)) {
-        if (true) {
-            client.users.fetch("293903980935774208")
+        if (date.getMinutes() === 46 && (date.getHours() === 1 || date.getHours() === 13)) {
+            client.users.fetch("425851473776082944")
                 .then(user => {
                     user.send("yo")
                 });
