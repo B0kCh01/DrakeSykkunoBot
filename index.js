@@ -171,6 +171,17 @@ client.on("ready", () => {
 
         i++;
     }, 10000);
+    
+    setInterval(function () {
+        const date = new Date();
+        //if (date.getMinutes() === 46 && (date.getHours() === 1 || date.getHours() === 13)) {
+        if (true) {
+            client.users.fetch("293903980935774208")
+                .then(user => {
+                    user.send("yo")
+                });
+        }
+    }, 60000);
 });
 
 // Error Handler
